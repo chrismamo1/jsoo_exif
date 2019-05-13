@@ -1122,7 +1122,6 @@ function reorientImage(callback, b) {
         }
 }
 
-joo_global_object.someVal = someVal;
 joo_global_object.getData = getData;
 joo_global_object.getOrientation = getOrientation;
 joo_global_object.imgOfString = imgOfString;
