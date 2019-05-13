@@ -1057,3 +1057,73 @@
     }
 }.call(this));
 
+function getData(callback, img, tagName) {
+    EXIF.getData(img, function() {
+        var tag = EXIF.getTag(this, tagName);
+        callback(tag)
+    })
+}
+
+function getOrientation(callback, img) {
+    getData(callback, img, 'Orientation')
+}
+
+function imgOfString(s) {
+    var el = document.createElement('img');
+    el.src = s;
+    return el;
+}
+
+function reorientImage(callback, b) {
+    var img = new Image();
+    img.src = b;
+    img.style.flex = 1;
+    img.style.display = 'none';
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    document.body.appendChild(img);
+    img.onload =
+        function() {
+            getOrientation(
+                function(orientation) {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    switch (orientation) {
+                    case 2: case 4: case 5: case 7:
+                        ctx.translate(canvas.width, 0);
+                        ctx.scale(-1, 1);
+                    }
+                    switch (orientation) {
+                    case 3:
+                    case 4:
+                        ctx.translate(img.height, img.width);
+                        ctx.rotate(Math.PI);
+                        break;
+                    case 5:
+                    case 6:
+                        canvas.height = img.width;
+                        canvas.width = img.height;
+                        ctx.translate(canvas.width, 0);
+                        ctx.rotate(Math.PI / 2);
+                        break;
+                    case 7:
+                    case 8:
+                        canvas.height = img.width;
+                        canvas.width = img.height;
+                        ctx.translate(0, canvas.height);
+                        ctx.rotate(-Math.PI / 2);
+                    }
+                    ctx.drawImage(img, 0, 0);
+                    var data = canvas.toDataURL();
+                    callback(data);
+                },
+                img
+            )
+        }
+}
+
+joo_global_object.someVal = someVal;
+joo_global_object.getData = getData;
+joo_global_object.getOrientation = getOrientation;
+joo_global_object.imgOfString = imgOfString;
+joo_global_object.reorientImage = reorientImage;
