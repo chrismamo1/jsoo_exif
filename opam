@@ -1,0 +1,20 @@
+opam-version: "2.0"
+name:         "jsoo_exif"
+maintainer:   "John Christopher McAlpine <christophermcalpine@gmail.com>"
+author:       [
+  "John Christopher McAlpine <christophermcalpine@gmail.com>"
+  ]
+homepage:     "https://github.com/chrismamo1/jsoo_exif"
+bug-reports:  "https://github.com/chrismamo1/jsoo_exif/issues"
+dev-repo:     "https://github.com/chrismamo1/jsoo_exif.git"
+
+license:      "LGPL-3.0 with OCaml linking exception"
+version:      "dev"
+build: [make "build"]
+install: [make "install"]
+remove: [make "remove"]
+
+depends: [
+  "gen_js_api"
+  "ocaml" >= "4.03.0"
+]
