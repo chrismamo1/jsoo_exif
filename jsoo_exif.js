@@ -1079,7 +1079,6 @@ function imgOfString(s, callback) {
     var img = new Image();
     img.src = s;
     img.onload = function() {
-        console.log('imgOfString running callback with image of size: ', img.width, ',', img.height);
         callback(img);
     }
 }
@@ -1090,8 +1089,6 @@ function stringOfImg(img, callback) {
     canvas.height = img.height;
     canvas.getContext('2d').drawImage(img, 0, 0);
     var rv = canvas.toDataURL();
-    console.log('stringOfImg got an image with src of size ', img.src.length);
-    console.log('stringOfImg is returning a value of length ', rv.length);
     callback(rv)
 }
 
@@ -1125,7 +1122,6 @@ function fileToImg(file, callback) {
 }
 
 function reorientImage(img, callback) {
-    console.log('in reorientImage');
     getOrientation(
         img,
         function(orientation) {
@@ -1160,9 +1156,7 @@ function reorientImage(img, callback) {
             }
             ctx.drawImage(img, 0, 0);
             document.body.appendChild(canvas);
-            console.log('width: ' + canvas.width + ", height: " + canvas.height);
             var rv = canvas.toDataURL();
-            console.log('reorientImage is returning something of size ', rv.length);
             imgOfString(rv, callback);
         }
     )
