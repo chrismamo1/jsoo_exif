@@ -1057,72 +1057,96 @@
     }
 }.call(this));
 
-function getData(callback, img, tagName) {
+function imgToCanvas(img) {
+    
+}
+
+function getData(img, tagName, callback) {
     EXIF.getData(img, function() {
         var tag = EXIF.getTag(this, tagName);
         callback(tag)
     })
 }
 
-function getOrientation(callback, img) {
-    getData(callback, img, 'Orientation')
+function getOrientation(img, callback) {
+    getData(img, 'Orientation', callback);
 }
 
-function imgOfString(s) {
-    var el = document.createElement('img');
-    el.src = s;
-    return el;
-}
-
-function reorientImage(callback, b) {
+function imgOfString(s, callback) {
     var img = new Image();
-    img.src = b;
-    img.style.flex = 1;
-    img.style.display = 'none';
+    img.src = s;
+    img.onload = function() {
+        callback(img);
+    }
+}
+
+function stringOfImg(img, callback) {
     var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    document.body.appendChild(img);
-    img.onload =
-        function() {
-            getOrientation(
-                function(orientation) {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    switch (orientation) {
-                    case 2: case 4: case 5: case 7:
-                        ctx.translate(canvas.width, 0);
-                        ctx.scale(-1, 1);
-                    }
-                    switch (orientation) {
-                    case 3:
-                    case 4:
-                        ctx.translate(img.height, img.width);
-                        ctx.rotate(Math.PI);
-                        break;
-                    case 5:
-                    case 6:
-                        canvas.height = img.width;
-                        canvas.width = img.height;
-                        ctx.translate(canvas.width, 0);
-                        ctx.rotate(Math.PI / 2);
-                        break;
-                    case 7:
-                    case 8:
-                        canvas.height = img.width;
-                        canvas.width = img.height;
-                        ctx.translate(0, canvas.height);
-                        ctx.rotate(-Math.PI / 2);
-                    }
-                    ctx.drawImage(img, 0, 0);
-                    var data = canvas.toDataURL();
-                    callback(data);
-                },
-                img
-            )
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    callback(canvas.toDataURL())
+}
+
+function fileOfImg(img, callback) {
+    // convert base64/URLEncoded data component to raw binary data held in a string
+    var byteString;
+    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+    else
+        byteString = unescape(dataURI.split(',')[1]);
+
+    // separate out the mime component
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to a typed array
+    var ia = new Uint8Array(byteString.length);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ia], {type:mimeString});
+}
+
+function reorientImage(img, callback) {
+    getOrientation(
+        img,
+        function(orientation) {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            switch (orientation) {
+            case 2: case 4: case 5: case 7:
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+            switch (orientation) {
+            case 3:
+            case 4:
+                ctx.translate(img.height, img.width);
+                ctx.rotate(Math.PI);
+                break;
+            case 5:
+            case 6:
+                canvas.height = img.width;
+                canvas.width = img.height;
+                ctx.translate(canvas.width, 0);
+                ctx.rotate(Math.PI / 2);
+                break;
+            case 7:
+            case 8:
+                canvas.height = img.width;
+                canvas.width = img.height;
+                ctx.translate(0, canvas.height);
+                ctx.rotate(-Math.PI / 2);
+            }
+            ctx.drawImage(img, 0, 0);
+            var data = canvas.toDataURL();
+            img.parentNode.removeChild(img);
+            callback(data);
         }
+    )
 }
 
 joo_global_object.getData = getData;
 joo_global_object.getOrientation = getOrientation;
 joo_global_object.imgOfString = imgOfString;
+joo_global_object.stringOfImg = stringOfImg;
 joo_global_object.reorientImage = reorientImage;
