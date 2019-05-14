@@ -15,7 +15,6 @@ install: [make "install"]
 remove: [make "remove"]
 
 depends: [
-  "gen_js_api"
   "js_of_ocaml"
   "ocaml" {>= "4.03.0"}
 ]

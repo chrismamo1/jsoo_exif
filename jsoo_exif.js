@@ -1058,7 +1058,10 @@
 }.call(this));
 
 function imgToCanvas(img) {
-    
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return canvas;
 }
 
 function getData(img, tagName, callback) {
@@ -1076,17 +1079,24 @@ function imgOfString(s, callback) {
     var img = new Image();
     img.src = s;
     img.onload = function() {
+        console.log('imgOfString running callback with image of size: ', img.width, ',', img.height);
         callback(img);
     }
 }
 
 function stringOfImg(img, callback) {
     var canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
     canvas.getContext('2d').drawImage(img, 0, 0);
-    callback(canvas.toDataURL())
+    var rv = canvas.toDataURL();
+    console.log('stringOfImg got an image with src of size ', img.src.length);
+    console.log('stringOfImg is returning a value of length ', rv.length);
+    callback(rv)
 }
 
 function fileOfImg(img, callback) {
+    var dataURI = img.src;
     // convert base64/URLEncoded data component to raw binary data held in a string
     var byteString;
     if (dataURI.split(',')[0].indexOf('base64') >= 0)
@@ -1103,13 +1113,24 @@ function fileOfImg(img, callback) {
         ia[i] = byteString.charCodeAt(i);
     }
 
-    return new Blob([ia], {type:mimeString});
+    callback(new Blob([ia], {type:mimeString}));
+}
+
+function fileToImg(file, callback) {
+    var img = new Image();
+    img.onload = function() {
+        callback(img);
+    }
+    img.src = file.name;
 }
 
 function reorientImage(img, callback) {
+    console.log('in reorientImage');
     getOrientation(
         img,
         function(orientation) {
+            var canvas = imgToCanvas(img);
+            var ctx = canvas.getContext('2d');
             canvas.width = img.width;
             canvas.height = img.height;
             switch (orientation) {
@@ -1138,9 +1159,11 @@ function reorientImage(img, callback) {
                 ctx.rotate(-Math.PI / 2);
             }
             ctx.drawImage(img, 0, 0);
-            var data = canvas.toDataURL();
-            img.parentNode.removeChild(img);
-            callback(data);
+            document.body.appendChild(canvas);
+            console.log('width: ' + canvas.width + ", height: " + canvas.height);
+            var rv = canvas.toDataURL();
+            console.log('reorientImage is returning something of size ', rv.length);
+            imgOfString(rv, callback);
         }
     )
 }
@@ -1149,4 +1172,5 @@ joo_global_object.getData = getData;
 joo_global_object.getOrientation = getOrientation;
 joo_global_object.imgOfString = imgOfString;
 joo_global_object.stringOfImg = stringOfImg;
+joo_global_object.fileOfImg = fileOfImg;
 joo_global_object.reorientImage = reorientImage;
