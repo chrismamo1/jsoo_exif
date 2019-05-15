@@ -1,0 +1,4 @@
+version = "dev"
+description = "Do basic read/transforms on EXIF data"
+archive(byte) = "jsoo_exif.cma"
+linkopts(javascript) = "+jsoo_exif/jsoo_exif.ml"
