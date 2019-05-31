@@ -10,9 +10,9 @@ dev-repo:     "git+https://github.com/chrismamo1/jsoo_exif.git"
 
 license:      "LGPL-3.0 with OCaml linking exception"
 version:      "0.0.1"
-build: [make "build"]
-install: [make "install"]
-remove: [make "remove"]
+build: [[make "build"]]
+install: [[make "install"]]
+remove: [[make "remove"]]
 
 depends: [
   "js_of_ocaml"
